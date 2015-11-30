@@ -8,6 +8,7 @@ Bundle 'L9'
 "themes
 Bundle 'jpo/vim-railscasts-theme'
 Bundle 'vim-scripts/xoria256.vim'
+Bundle 'altercation/vim-colors-solarized'
 Bundle 'FuzzyFinder'
 
 "lang
@@ -21,12 +22,15 @@ Bundle 'pangloss/vim-javascript'
 Bundle 'kchmck/vim-coffee-script'
 Bundle 'leshill/vim-json'
 Bundle 'itspriddle/vim-jquery'
+Bundle 'tpope/vim-cucumber.git'
+Bundle 'puppetlabs/puppet-syntax-vim'
 
 "files
 Bundle 'tpope/vim-fugitive'
 "Bundle 'http://git.wincent.com/command-t.git'
 Bundle 'wincent/Command-T.git'
 Bundle 'scrooloose/nerdtree'
+
 
 "code
 Bundle 'tpope/vim-surround'
@@ -36,10 +40,11 @@ Bundle 'msanders/snipmate.vim'
 Bundle 'matchit.zip'
 Bundle 'kana/vim-textobj-user'
 Bundle 'nelstrom/vim-textobj-rubyblock'
-Bundle 'Raimondi/delimitMate'
-Bundle 'scrooloose/syntastic'
+"Bundle 'Raimondi/delimitMate'
+"Bundle 'xolox/vim-easytags'
+"Bundle 'scrooloose/syntastic'
 "Bundle 'Shougo/neocomplcache'
-"Bundle 'taglist'
+Bundle 'vim-scripts/taglist.vim'
 
 "other
 Bundle 'ervandew/supertab'
@@ -49,10 +54,18 @@ Bundle 'SearchComplete'
 Bundle "repeat.vim"
 Bundle 'Lokaltog/vim-easymotion'
 Bundle 'Lokaltog/vim-powerline'
-Bundle 'IndexedSearch'
+"Bundle 'IndexedSearch'
+Bundle 'nixternal/taskwarrior-vim.git'
+Bundle 'vim-scripts/file-line'
 
-let &t_Co=256
-set t_Co=256 "enable 256 colors
+
+let &t_Co=16
+set t_Co=16 "enable 256 colors
+let g:solarized_termcolors=16
+
+"let &t_Co=16
+"set t_Co=16 "enable 256 colors
+"let g:solarized_termcolors=16
 " Basic stuff
 
 set nocompatible
@@ -98,6 +111,7 @@ endif
 " githubs
 
 au BufNewFile,BufRead COMMIT_EDITMSG setlocal textwidth=75 fileencoding=utf-8 encoding=utf-8 filetype=gitcommit spell
+set fileencodings=utf-8,iso-8859-2
 
 " trailing whitespace
 :autocmd ColorScheme * highlight ExtraWhitespace ctermbg=red guibg=red
@@ -128,13 +142,18 @@ nmap <silent> <leader>v :e ~/.vim/vimrc<CR>
 
 
 let mapleader=","
-colorscheme railscasts
+"colorscheme railscasts
 "colorscheme xoria256
+syntax enable
+set background=dark
+colorscheme solarized
+
 
 " custom maps
 
 map <Leader>T :NERDTreeToggle<CR>
-map <Leader>t ::CommandT<CR>
+map <Leader>t :NERDTreeToggle<CR>
+map <Leader>tt :TlistShowTag<CR>
 map <Leader>p :set invpaste paste?<CR>
 noremap <Leader>hls :set hlsearch! hlsearch?<CR>
 cmap w!! %!sudo tee > /dev/null %
@@ -174,26 +193,6 @@ let g:neocomplcache_auto_completion_start_length=1
 " Tab / Shift-Tab to cycle completions
 inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<S-TAB>"
-
-" Required to make neocomplcache_cursor_hold_i_time work
-" See https://github.com/Shougo/neocomplcache/issues/140
-let s:update_time_save = &updatetime
-autocmd InsertEnter * call s:on_insert_enter()
-
-function! s:on_insert_enter()
-  if &updatetime > g:neocomplcache_cursor_hold_i_time
-    let s:update_time_save = &updatetime
-    let &updatetime = g:neocomplcache_cursor_hold_i_time
-  endif
-endfunction
-
-autocmd InsertLeave * call s:on_insert_leave()
-
-function! s:on_insert_leave()
-  if &updatetime < s:update_time_save
-    let &updatetime = s:update_time_save
-  endif
-endfunction
 
 " ---------------
 " Lusty Juggler
@@ -455,3 +454,18 @@ endfunction
 
 command! QuickSpellingFix call QuickSpellingFix()
 nmap <silent> <leader>z :QuickSpellingFix<CR>
+set completeopt=longest,menuone
+:nnoremap <silent><Leader><C-]> <C-w><C-]><C-w>T
+au BufRead,BufNewFile *.pp              set filetype=puppet
+let g:ctags_statusline=2
+let Tlist_Process_File_Always=1
+
+fun! ShowFuncName()
+  let lnum = line(".")
+  let col = col(".")
+  echohl ModeMsg
+  echo getline(search("^[^ \t#/]\\{2}.*[^:]\s*$", 'bW'))
+  echohl None
+  call search("\\%" . lnum . "l" . "\\%" . col . "c")
+endfun
+map f :call ShowFuncName() <CR>
